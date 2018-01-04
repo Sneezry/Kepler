@@ -374,7 +374,7 @@ chrome.browserAction.onClicked.addListener((tab) => {
     kepler.getBook().then(() => {
         setBusy(false);
     }, error => {
-        throw error;
         setBusy(false);
+        throw error;
     });
 });

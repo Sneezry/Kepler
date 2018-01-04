@@ -1,3 +1,18 @@
 # Kepler
 
 Kepler is a tool to generate ePub eBooks from Safari Books Online.
+
+## Installation
+
+1. `git clone https://github.com/Sneezry/Kepler.git`
+2. Open chrome://extensions/ in Chrome
+3. Enable developer mode
+4. Load unpackaged extension
+5. Select Kepler folder
+
+## How to use
+
+1. Open Safari Books Online and login your account
+2. Open the book you want to convert (such as <https://www.safaribooksonline.com/library/view/learning-typescript/9781783985548/>)
+3. Click Kepler icon on top right corner in your browser
+4. Wait and save ePub eBook

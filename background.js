@@ -246,6 +246,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
                 depth: item.depth,
                 base64: false,
                 content: content.replace(/&nbsp;/g, ' ')
+                                .replace(/<hr>/g, '<hr/>')
             };
             this.pages.push(_page);
             this.getImages(page.images).then(resolve, reject);

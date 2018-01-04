@@ -235,7 +235,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
 </head>
 <body>
     <h1>${page.title}</h1>
-    ${res.match(/<article>([\S\s]*?)<\/article>/)[1]}
+    ${res}
 </body>
 </html>`;
             const _page = {

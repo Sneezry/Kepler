@@ -16,3 +16,10 @@ Kepler is a tool to generate ePub eBooks from Safari Books Online.
 2. Open the book you want to convert (such as <https://www.safaribooksonline.com/library/view/learning-typescript/9781783985548/>)
 3. Click Kepler icon on top right corner in your browser
 4. Wait and save ePub eBook
+
+## Kindle
+
+1. Download and install [Kindle Preview](https://www.amazon.com/gp/feature.html?docId=1000765261)
+2. Open the generated ePub file in Kindle Preview
+3. Export mobi or azk file
+4. Import the file into Kindle

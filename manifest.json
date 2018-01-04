@@ -1,0 +1,26 @@
+{
+    "manifest_version": 2,
+    "name": "Kepler",
+    "version": "0.1.0",
+    "description": "Generate ePub eBooks from Safari Books Online",
+    "icons": {
+        "16": "kepler.png",
+        "48": "kepler.png",
+        "128": "kepler.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "19": "kepler.png",
+            "38": "kepler.png"
+        },
+        "default_title": "Kepler"
+    },
+    "background": {
+        "scripts": ["FileSaver.js", "jszip.js", "background.js"],
+        "persistent": false
+    },
+    "permissions": [
+        "*://www.safaribooksonline.com/*",
+        "*://syndetics.com/*"
+    ]
+}

@@ -81,7 +81,7 @@ function generateTOC(toc) {
     let navMap = getMap(root.children);
 
     let ncx = `<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+<ncx xmlns:ncx="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
     <head>
     <meta name="cover" content="cover"/>
     <meta name="dtb:uid" content="isbn:${toc.book_id}"/>
@@ -104,7 +104,7 @@ ${navMap}
     let xmlItems = '';
     toc.items.forEach(item => {
         opfItems = `${opfItems}
-<item id="${item.id}" href="${item.href}" media-type="${item.media_type}"/>
+<item id="${item.id}" href="${item.href.split('#')[0]}" media-type="${item.media_type}"/>
         `;
         if (item.media_type === 'application/xhtml+xml') {
             xmlItems = `${xmlItems}
@@ -114,7 +114,7 @@ ${navMap}
     });
 
     let opf = `<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="bookid">
+<package xmlns:epub="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="bookid">
     <metadata>
     <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/" id="bookid">urn:isbn:${toc.book_id}</dc:identifier>
     <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">${toc.title}</dc:title>
@@ -149,7 +149,7 @@ function getMap(points) {
     <navLabel>
         <text>${point.label}</text>
     </navLabel>
-    <content src="${point.src}"/>
+    <content src="${point.src.split('#')[0]}"/>
     ${point.children ? getMap(point.children) : ''}
 </navPoint>`;
     });
@@ -175,7 +175,7 @@ Kepler.prototype.getBook = function() {
                 this.totalItem = toc.items.length;
                 this.toc = generateTOC(toc);
                 this.parseTOC(toc).then(() => {
-                    this.getSingleImageData(`https://syndetics.com/index.aspx?isbn=${this.id}/LC.GIF`)
+                    this.getSingleImageData(`https://www.safaribooksonline.com/library/cover/${this.id}/720h/`, 'cover-image.jpg')
                     .then(() => {
                         this.save().then(resolve, reject);
                     }, reject);
@@ -229,14 +229,15 @@ Kepler.prototype.getSinglePage = function(item, page) {
         const url = page.content;
         const name = page.full_path;
         httpRequest(url).then(res => {
-            const content = `<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>${page.title}</title>
-</head>
-<body>
-    <h1>${page.title}</h1>
-    ${res}
-</body>
+            const content = `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+            xmlns:epub="http://www.idpf.org/2007/ops">
+    <head>
+        <title>${page.title}</title>
+    </head>
+    <body>
+        ${res}
+    </body>
 </html>`;
             const _page = {
                 name: name,
@@ -244,7 +245,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
                 order: item.order,
                 depth: item.depth,
                 base64: false,
-                content: content
+                content: content.replace(/&nbsp;/g, ' ')
             };
             this.pages.push(_page);
             this.getImages(page.images).then(resolve, reject);
@@ -269,10 +270,10 @@ Kepler.prototype.getImages = function(urls) {
     });
 }
 
-Kepler.prototype.getSingleImageData = function(url) {
+Kepler.prototype.getSingleImageData = function(url, name) {
     return new Promise((resolve, reject) => {
         httpRequest(url, true).then(res => {
-            const name = url.match(/([^\/]+)$/)[1];
+            name = name || url.match(/([^\/]+)$/)[1];
             const reader = new FileReader();
             reader.onload = () => {
                 try {
@@ -307,7 +308,7 @@ Kepler.prototype.save = function() {
             meta.file('container.xml', `<?xml version="1.0" encoding="utf-8" standalone="no"?>
         <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
             <rootfiles>
-            <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+                <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
             </rootfiles>
         </container>`);
             const OEBPS = zip.folder('OEBPS');
@@ -315,9 +316,6 @@ Kepler.prototype.save = function() {
             OEBPS.file('toc.ncx', toc.ncx);
             OEBPS.file('content.opf', toc.opf);
             this.pages.forEach(page => {
-                if (page.name === 'LC.GIF') {
-                    page.name = 'cover-image.jpg';
-                }
                 if (page.base64 && page.name !== 'cover-image.jpg') {
                     assets.file(page.name, page.content, {base64: page.base64});
                 } else {

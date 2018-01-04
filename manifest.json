@@ -20,7 +20,6 @@
         "persistent": false
     },
     "permissions": [
-        "*://www.safaribooksonline.com/*",
-        "*://syndetics.com/*"
+        "*://www.safaribooksonline.com/*"
     ]
 }

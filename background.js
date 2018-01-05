@@ -248,7 +248,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
                 content: content.replace(/&nbsp;/g, ' ')
                                 .replace(/<hr>/g, '<hr/>')
                                 .replace(/<br>/g, '<br/>')
-                                .replace(/(<img[^>]*[^\/>])>/, '$1/>')
+                                .replace(/(<img[^>]*[^\/>])>/g, '$1/>')
             };
             this.pages.push(_page);
             this.getImages(page.images).then(resolve, reject);

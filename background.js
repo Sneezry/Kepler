@@ -251,20 +251,26 @@ Kepler.prototype.getSinglePage = function(item, page) {
                                 .replace(/(<img[^>]*[^\/>])>/g, '$1/>')
             };
             this.pages.push(_page);
-            this.getImages(page.images).then(resolve, reject);
+            this.getImages(page.images, page.full_path).then(resolve, reject);
         }, reject);
     });
 }
 
-Kepler.prototype.getImages = function(urls) {
+Kepler.prototype.getImages = function(imagePaths, pagePath) {
     return new Promise((resolve, reject) => {
         const imagePromises = [];
         let currentIndex = 0;
         const queue = setInterval(() => {
-            if (currentIndex < urls.length) {
-                let url = urls[currentIndex++].replace(/\.\.\\/g, '');
-                url = `https://www.safaribooksonline.com/library/view/${this.title}/${this.id}/${url}`;
-                imagePromises.push(this.getSingleImageData(url));
+            if (currentIndex < imagePaths.length) {
+                if (pagePath.indexOf('/') === -1) {
+                    pagePath = '';
+                } else {
+                    pagePath = pagePath.substr(0, pagePath.lastIndexOf('/'));
+                }
+
+                let path = joinPath([pagePath, imagePaths[currentIndex++]]);
+                let url = `https://www.safaribooksonline.com/library/view/${this.title}/${this.id}/${path}`;
+                imagePromises.push(this.getSingleImageData(url, path));
             } else {
                 clearInterval(queue);
                 Promise.all(imagePromises).then(resolve, reject);
@@ -315,15 +321,19 @@ Kepler.prototype.save = function() {
             </rootfiles>
         </container>`);
             const OEBPS = zip.folder('OEBPS');
-            const assets = OEBPS.folder('assets');
             OEBPS.file('toc.ncx', toc.ncx);
             OEBPS.file('content.opf', toc.opf);
+
             this.pages.forEach(page => {
-                if (page.base64 && page.name !== 'cover-image.jpg') {
-                    assets.file(page.name, page.content, {base64: page.base64});
-                } else {
-                    OEBPS.file(page.name, page.content, {base64: page.base64});
+                let current = OEBPS;
+
+                if (page.name.indexOf('/') !== -1) {
+                    let path = joinPath(['OEBPS', page.name.substr(0, page.name.lastIndexOf('/'))]);
+                    current = zip.folder(path);
+                    page.name = page.name.substr(page.name.lastIndexOf('/') + 1);
                 }
+
+                current.file(page.name, page.content, {base64: page.base64});
             });
             zip.generateAsync({type:'blob'})
             .then(function(content) {
@@ -381,3 +391,36 @@ chrome.browserAction.onClicked.addListener((tab) => {
         throw error;
     });
 });
+
+function joinPath(paths) {
+    let path = [];
+    paths.forEach(_path => {
+        if (!_path) {
+            return;
+        }
+
+        let _paths = _path.split('/');
+
+        // _path start with /
+        if (_paths[0] === '') {
+            path = [];
+            for (let i = 1; i < _paths.length; i++) {
+                path.push(_paths[i]);
+            }
+        } else {
+            for (let i = 0; i < _paths.length; i++) {
+                // ignore // and ./
+                if (!_paths[i] || _paths[i] === '.') {
+                    continue;
+                }
+
+                if (_paths[i] === '..') {
+                    path.length = path.length - 1;
+                } else {
+                    path.push(_paths[i]);
+                }
+            }
+        }
+    });
+    return path.join('/');
+}

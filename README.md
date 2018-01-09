@@ -19,7 +19,14 @@ Kepler is a tool to generate ePub eBooks from Safari Books Online.
 
 ## Kindle
 
+### Kindle Previewer
+
 1. Download and install [Kindle Previewer](https://www.amazon.com/gp/feature.html?docId=1000765261)
 2. Open the generated ePub file in Kindle Previewer
 3. Export mobi or azk file
 4. Import the file into Kindle
+
+### KindleGen
+
+1. Download [KindleGen](https://www.amazon.com/gp/feature.html?docId=1000765211)
+2. `./kindlegen <epub-file-name>`

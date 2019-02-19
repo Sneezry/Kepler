@@ -29,7 +29,7 @@ function httpRequest(url, isBlob){
 }
 
 function getBookInfo(url) {
-    const matches = url.match(/www\.safaribooksonline\.com\/library\/view\/(.*?)\/(\d+)[\/$]/);
+    const matches = url.match(/learning\.oreilly\.com\/library\/view\/(.*?)\/(\d+)[\/$]/);
     if (matches && matches.length > 2) {
         return {
             title: matches[1],
@@ -168,14 +168,14 @@ Kepler.prototype.INTERVAL = 1000;
 Kepler.prototype.getBook = function() {
     chrome.browserAction.setBadgeText({text: '0'});
     return new Promise((resolve, reject) => {
-        const url = `https://www.safaribooksonline.com/nest/epub/toc/?book_id=${this.id}`;
+        const url = `https://learning.oreilly.com/nest/epub/toc/?book_id=${this.id}`;
         httpRequest(url).then(res => {
             try {
                 const toc = JSON.parse(res);
                 this.totalItem = toc.items.length;
                 this.toc = generateTOC(toc);
                 this.parseTOC(toc).then(() => {
-                    this.getSingleImageData(`https://www.safaribooksonline.com/library/cover/${this.id}/720h/`, 'cover-image.jpg')
+                    this.getSingleImageData(`https://learning.oreilly.com/library/cover/${this.id}/720h/`, 'cover-image.jpg')
                     .then(() => {
                         this.save().then(resolve, reject);
                     }, reject);
@@ -205,7 +205,7 @@ Kepler.prototype.parseTOC = function(toc) {
 
 Kepler.prototype.getSingleItem = function(item) {
     return new Promise((resolve, reject) => {
-        const url = `https://www.safaribooksonline.com${item.url}`;
+        const url = `https://learning.oreilly.com${item.url}`;
         httpRequest(url).then(res => {
             try {
                 const page = JSON.parse(res);
@@ -269,7 +269,7 @@ Kepler.prototype.getImages = function(imagePaths, pagePath) {
                 }
 
                 let path = joinPath([pagePath, imagePaths[currentIndex++]]);
-                let url = `https://www.safaribooksonline.com/library/view/${this.title}/${this.id}/${path}`;
+                let url = `https://learning.oreilly.com/library/view/${this.title}/${this.id}/${path}`;
                 imagePromises.push(this.getSingleImageData(url, path));
             } else {
                 clearInterval(queue);
@@ -371,7 +371,7 @@ chrome.browserAction.onClicked.addListener((tab) => {
     setBusy(true);
 
     const url = tab.url;
-    if (!/:\/\/www\.safaribooksonline\.com/.test(url)) {
+    if (!/:\/\/learning\.oreilly\.com/.test(url)) {
         setBusy(false);
         return;
     }

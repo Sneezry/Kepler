@@ -30,3 +30,9 @@ Kepler is a tool to generate ePub eBooks from Safari Books Online.
 
 1. Download [KindleGen](https://www.amazon.com/gp/feature.html?docId=1000765211)
 2. `./kindlegen <epub-file-name>`
+
+### Similar Projects
+
+I haven't tested these projects, but just show them here in just case you may need them if this project cannot help you.
+
+1. https://github.com/lorenzodifuccia/safaribooks

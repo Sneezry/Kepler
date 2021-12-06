@@ -239,6 +239,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
         ${res}
     </body>
 </html>`;
+            const extraPath = `/api/v2/epubs/urn:orm:book:${this.id}/files/`;
             const _page = {
                 name: name,
                 label: item.label,
@@ -249,6 +250,7 @@ Kepler.prototype.getSinglePage = function(item, page) {
                                 .replace(/<hr>/g, '<hr/>')
                                 .replace(/<br>/g, '<br/>')
                                 .replace(/(<img[^>]*[^\/>])>/g, '$1/>')
+                                .replaceAll(extraPath, '')
             };
             this.pages.push(_page);
             this.getImages(page.images, page.full_path).then(resolve, reject);
@@ -269,7 +271,7 @@ Kepler.prototype.getImages = function(imagePaths, pagePath) {
                 }
 
                 let path = joinPath([pagePath, imagePaths[currentIndex++]]);
-                let url = `https://learning.oreilly.com/library/view/${this.title}/${this.id}/${path}`;
+                let url = `https://learning.oreilly.com/api/v2/epubs/urn:orm:book:${this.id}/files/${path}`;
                 imagePromises.push(this.getSingleImageData(url, path));
             } else {
                 clearInterval(queue);
